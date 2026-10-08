@@ -1,6 +1,8 @@
 <script lang="ts">
   import add_icon from "#lib/assets/plus-circle-solid.svg";
   import filter_icon from "#lib/assets/filter-solid.svg";
+  import { fade, fly, scale } from "svelte/transition";
+  import { cubicOut } from "svelte/easing";
 
   type Filters = {
     createdAfter: string;
@@ -77,6 +79,7 @@
 
   {#if filtersOpened}
     <div
+      transition:fly={{ duration: 200, start: 0.95, easing: cubicOut }}
       id="song-filters"
       class="mt-3 p-3 flex flex-col gap-3 text-white border border-zinc-700 rounded-xl bg-zinc-800"
     >
@@ -86,7 +89,7 @@
           type="button"
           onclick={clearFilters}
           disabled={!activeFilterCount}
-          class="text-sm text-white/60 hover:text-white disabled:opacity-40"
+          class="hover:cursor-pointer text-sm text-white/60 hover:text-white disabled:opacity-40"
         >
           Clear
         </button>
@@ -97,7 +100,7 @@
         <select
           aria-label="Sort songs"
           bind:value={sortBy}
-          class="h-10 px-2 bg-zinc-900 rounded-xl"
+          class=" hover:cursor-pointer h-10 px-2 bg-zinc-900 rounded-xl"
         >
           <option value="name">A–Z</option>
           <option value="created">Date added</option>

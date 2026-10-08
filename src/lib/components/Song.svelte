@@ -1,6 +1,7 @@
 <script lang="ts">
   import { cubicOut } from "svelte/easing";
   import { fade, scale } from "svelte/transition";
+  import pentagram from "#lib/assets/pentagram.svg";
 
   type SongRow = {
     id: number;
@@ -116,7 +117,10 @@
     </div>
   {:else}
     <div class="flex-1 min-w-0">
-      <p class="font-semibold truncate">{song.name}</p>
+      <div class="flex items-center gap-1">
+        <img alt="pentagram" src={pentagram} class="w-6 h-6" />
+        <p class="font-semibold truncate">{song.name}</p>
+      </div>
       <p class="text-sm opacity-60 truncate">
         {song.artist}
         <span class="opacity-80">

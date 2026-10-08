@@ -4,7 +4,7 @@
   import Header from "#lib/components/Header.svelte";
   import Song from "#lib/components/Song.svelte";
   import AddSongForm from "#lib/components/AddSong.svelte";
-
+  import pentagram from "#lib/assets/pentagram.svg";
   type SongRow = {
     id: number;
     name: string;
@@ -44,11 +44,7 @@
     );
   }
 
-  function isDateInRange(
-    value: string | null,
-    after: string,
-    before: string,
-  ) {
+  function isDateInRange(value: string | null, after: string, before: string) {
     if (!after && !before) return true;
     if (!value) return false;
 
@@ -58,7 +54,11 @@
 
   function matchesFilters(song: SongRow) {
     return (
-      isDateInRange(song.created_at, filters.createdAfter, filters.createdBefore) &&
+      isDateInRange(
+        song.created_at,
+        filters.createdAfter,
+        filters.createdBefore,
+      ) &&
       isDateInRange(
         song.last_played,
         filters.lastPlayedAfter,
@@ -168,8 +168,10 @@
 />
 
 <main class="w-full min-h-screen flex flex-col items-center bg-zinc-900">
+  <!-- Fixed background image with a dark overlay for readability -->
+
   <div
-    class="w-full sticky top-0 z-20 items-center flex flex-col p-1 bg-zinc-900 border border-white/20 rounded-b-lg shadow-2xl"
+    class="w-full sticky top-0 z-20 items-center flex flex-col p-1 bg-zinc-900 border-b border-white/20 rounded-b-lg shadow-2xl"
   >
     <h1 class="text-3xl text-white opacity-50 mt-4">Set List</h1>
     <Header
@@ -181,7 +183,9 @@
     ></Header>
   </div>
 
-  <section class="w-full md:w-3/4 lg:w-1/2 flex flex-col gap-2 p-3 sm:p-4">
+  <section
+    class="w-full md:w-3/4 lg:w-1/2 flex-1 flex flex-col gap-2 p-3 sm:p-4"
+  >
     {#if showHistory}
       {#each pastSongs as song (song.id)}
         <Song {song} onrestore={restoreSong} ondelete={deleteSong} />
@@ -208,6 +212,15 @@
       {/each}
     {/if}
   </section>
+
+  <footer
+    class="w-full flex felx-col items-center justify-center border-t border-white/20 rounded-t-lg py-1 px-3 text-sm text-white/40"
+  >
+    <div class="flex flex-col items-center gap-2">
+      <img alt="pentagram" src={pentagram} class="w-10 h-10 opacity-40" />
+      <p>Hail Satan !</p>
+    </div>
+  </footer>
 </main>
 
 {#if addOpened}

@@ -169,11 +169,11 @@
 
 <main class="w-full min-h-screen flex flex-col items-center bg-zinc-900">
   <!-- Fixed background image with a dark overlay for readability -->
-
+    <h1 class="text-3xl text-white opacity-50 mt-1 lg:mt-4">Set List</h1>
   <div
     class="w-full sticky top-0 z-20 items-center flex flex-col p-1 bg-zinc-900 border-b border-white/20 rounded-b-lg shadow-2xl"
   >
-    <h1 class="text-3xl text-white opacity-50 mt-4">Set List</h1>
+
     <Header
       bind:showHistory
       onAdd={openAdd}

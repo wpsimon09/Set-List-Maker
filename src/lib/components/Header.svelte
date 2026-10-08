@@ -4,7 +4,7 @@
   let {
     showHistory = $bindable(false),
     onAdd,
-    searchTerm = $bindable(true),
+    searchTerm = $bindable(""),
   } = $props();
 </script>
 

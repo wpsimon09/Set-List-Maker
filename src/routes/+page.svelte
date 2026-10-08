@@ -12,6 +12,8 @@
     tabs_link: string | null;
     created_at: string;
     archived_at: string | null;
+    last_played: string | null;
+    times_played: number;
   };
 
   let showHistory = $state(false);
@@ -55,6 +57,13 @@
     const res = await fetch(`/api/songs/${song.id}`, { method: "DELETE" });
     if (!res.ok) return alert("Couldn't delete the song. Try again.");
     songs = songs.filter((s) => s.id !== song.id);
+  }
+
+  async function markPlayed(song: SongRow) {
+    const res = await fetch(`/api/songs/${song.id}/played`, { method: "POST" });
+    if (!res.ok) return alert("Couldn't mark the song as played. Try again.");
+    const saved: SongRow = await res.json();
+    songs = songs.map((s) => (s.id === saved.id ? saved : s));
   }
 
   function archiveSong(song: SongRow) {
@@ -104,7 +113,12 @@
       {/each}
     {:else}
       {#each setList as song (song.id)}
-        <Song {song} onsave={updateSong} onarchive={archiveSong} />
+        <Song
+          {song}
+          onsave={updateSong}
+          onarchive={archiveSong}
+          onplayed={markPlayed}
+        />
       {:else}
         <p class="text-white/50 text-center py-8">
           No songs yet. Use Add to start your set list.

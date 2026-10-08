@@ -17,9 +17,12 @@
     played_locked: boolean;
   };
 
+  type SortOption = "name" | "created" | "last-played" | "times-played";
+
   let showHistory = $state(false);
   let addOpened = $state(false);
   let searchTerm = $state("");
+  let sortBy = $state<SortOption>("name");
   let filters = $state({
     createdAfter: "",
     createdBefore: "",
@@ -72,14 +75,30 @@
     return matchesSearch(song) && matchesFilters(song);
   }
 
+  function sortSongs(list: SongRow[]) {
+    return list.sort((a, b) => {
+      if (sortBy === "name") {
+        return `${a.name} ${a.artist}`.localeCompare(`${b.name} ${b.artist}`);
+      }
+      if (sortBy === "times-played") return b.times_played - a.times_played;
+      if (sortBy === "created") return b.created_at.localeCompare(a.created_at);
+      if (!a.last_played && !b.last_played) return 0;
+      if (!a.last_played) return 1;
+      if (!b.last_played) return -1;
+      return b.last_played.localeCompare(a.last_played);
+    });
+  }
+
   let setList = $derived(
-    songs.filter((s) => s.archived_at === null && matchesCurrentFilters(s)),
+    sortSongs(
+      songs.filter((s) => s.archived_at === null && matchesCurrentFilters(s)),
+    ),
   );
 
   let pastSongs = $derived(
-    songs
-      .filter((s) => s.archived_at !== null && matchesCurrentFilters(s))
-      .sort((a, b) => b.archived_at!.localeCompare(a.archived_at!)),
+    sortSongs(
+      songs.filter((s) => s.archived_at !== null && matchesCurrentFilters(s)),
+    ),
   );
 
   async function updateSong(updated: SongRow) {
@@ -158,6 +177,7 @@
       onAdd={openAdd}
       bind:searchTerm
       bind:filters
+      bind:sortBy
     ></Header>
   </div>
 

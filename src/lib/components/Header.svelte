@@ -11,6 +11,8 @@
     timesPlayedMax: number | undefined;
   };
 
+  type SortOption = "name" | "created" | "last-played" | "times-played";
+
   let {
     showHistory = $bindable(false),
     onAdd,
@@ -23,6 +25,7 @@
       timesPlayedMin: undefined,
       timesPlayedMax: undefined,
     }),
+    sortBy = $bindable<SortOption>("name"),
   } = $props();
 
   let filtersOpened = $state(false);
@@ -88,6 +91,20 @@
           Clear
         </button>
       </div>
+
+      <label class="flex flex-col gap-1">
+        <span class="text-sm text-white/60">Sort by</span>
+        <select
+          aria-label="Sort songs"
+          bind:value={sortBy}
+          class="h-10 px-2 bg-zinc-900 rounded-xl"
+        >
+          <option value="name">A–Z</option>
+          <option value="created">Date added</option>
+          <option value="last-played">Last played</option>
+          <option value="times-played">Play count</option>
+        </select>
+      </label>
 
       <fieldset class="flex flex-col gap-1">
         <legend class="text-sm text-white/60">Date added</legend>

@@ -19,6 +19,14 @@
   let showHistory = $state(false);
   let addOpened = $state(false);
   let searchTerm = $state("");
+  let filters = $state({
+    createdAfter: "",
+    createdBefore: "",
+    lastPlayedAfter: "",
+    lastPlayedBefore: "",
+    timesPlayedMin: undefined,
+    timesPlayedMax: undefined,
+  });
 
   let { data } = $props();
   let songs = $state<SongRow[]>(data.songs);
@@ -32,13 +40,44 @@
     );
   }
 
+  function isDateInRange(
+    value: string | null,
+    after: string,
+    before: string,
+  ) {
+    if (!after && !before) return true;
+    if (!value) return false;
+
+    const date = value.slice(0, 10);
+    return (!after || date >= after) && (!before || date <= before);
+  }
+
+  function matchesFilters(song: SongRow) {
+    return (
+      isDateInRange(song.created_at, filters.createdAfter, filters.createdBefore) &&
+      isDateInRange(
+        song.last_played,
+        filters.lastPlayedAfter,
+        filters.lastPlayedBefore,
+      ) &&
+      (filters.timesPlayedMin === undefined ||
+        song.times_played >= Number(filters.timesPlayedMin)) &&
+      (filters.timesPlayedMax === undefined ||
+        song.times_played <= Number(filters.timesPlayedMax))
+    );
+  }
+
+  function matchesCurrentFilters(song: SongRow) {
+    return matchesSearch(song) && matchesFilters(song);
+  }
+
   let setList = $derived(
-    songs.filter((s) => s.archived_at === null && matchesSearch(s)),
+    songs.filter((s) => s.archived_at === null && matchesCurrentFilters(s)),
   );
 
   let pastSongs = $derived(
     songs
-      .filter((s) => s.archived_at !== null && matchesSearch(s))
+      .filter((s) => s.archived_at !== null && matchesCurrentFilters(s))
       .sort((a, b) => b.archived_at!.localeCompare(a.archived_at!)),
   );
 
@@ -99,7 +138,12 @@
     class="w-full sticky top-0 z-20 items-center flex flex-col p-1 bg-zinc-900 border border-white/20 rounded-b-lg shadow-2xl"
   >
     <h1 class="text-3xl text-white opacity-50 mt-4">Set List</h1>
-    <Header bind:showHistory onAdd={openAdd} bind:searchTerm></Header>
+    <Header
+      bind:showHistory
+      onAdd={openAdd}
+      bind:searchTerm
+      bind:filters
+    ></Header>
   </div>
 
   <section class="w-full md:w-3/4 lg:w-1/2 flex flex-col gap-2 p-3 sm:p-4">
@@ -121,7 +165,9 @@
         />
       {:else}
         <p class="text-white/50 text-center py-8">
-          No songs yet. Use Add to start your set list.
+          {songs.length
+            ? "No songs match the current search and filters."
+            : "No songs yet. Use Add to start your set list."}
         </p>
       {/each}
     {/if}

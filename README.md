@@ -2,15 +2,11 @@
 
 Small app for the jam sessions set-list
 
-## Database migrations
+## Group Play Lock
 
-Run the SQL files in `db/migrations` against the PostgreSQL database before deploying
-features that depend on them. Apply them in filename order:
-
-1. `db/migrations/001_add_song_play_tracking.sql` adds `last_played` and
-   `times_played`.
-2. `db/migrations/002_add_group_play_lock.sql` adds `played_locked` for the
-   shared group-play lock.
+Click **Played** once after the group performs a song. The song is then
+locked so it cannot be counted twice. Click **Unlock** before the group plays
+it again.
 
 ## AI disclaimer
 

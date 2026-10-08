@@ -12,6 +12,9 @@ export const load: PageServerLoad = async () => {
       tabs_link: r.tabs_link,
       created_at: r.created_at.toISOString(),
       archived_at: r.archived_at ? r.archived_at.toISOString() : null,
+      last_played: r.last_played ? r.last_played.toISOString() : null,
+      times_played: r.times_played,
+      played_locked: r.played_locked,
     })),
   };
 };

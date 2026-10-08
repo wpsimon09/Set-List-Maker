@@ -9,6 +9,9 @@
     tabs_link: string | null;
     created_at: string;
     archived_at: string | null;
+    last_played: string | null;
+    times_played: number;
+    played_locked: boolean;
   };
 
   let {
@@ -17,12 +20,16 @@
     onarchive = () => {},
     onrestore = () => {},
     ondelete = () => {},
+    onplayed = () => {},
+    onallowNextPlay = () => {},
   }: {
     song: SongRow;
     onsave?: (song: SongRow) => void;
     onarchive?: (song: SongRow) => void;
     onrestore?: (song: SongRow) => void;
     ondelete?: (song: SongRow) => void;
+    onplayed?: (song: SongRow) => void;
+    onallowNextPlay?: (song: SongRow) => void;
   } = $props();
 
   let isArchived = $derived(song.archived_at !== null);
@@ -61,6 +68,10 @@
       month: "short",
       year: "numeric",
     });
+  }
+
+  function playLabel() {
+    return song.times_played === 1 ? "1 play" : `${song.times_played} plays`;
   }
 </script>
 
@@ -108,6 +119,12 @@
       <p class="font-semibold truncate">{song.name}</p>
       <p class="text-sm opacity-60 truncate">
         {song.artist}
+        <span class="opacity-80">
+          · {playLabel()}
+          {#if song.last_played}
+            · last played {formatDate(song.last_played)}
+          {/if}
+        </span>
         {#if isArchived && song.archived_at}
           <span class="opacity-80">
             · removed {formatDate(song.archived_at)}</span
@@ -126,6 +143,13 @@
         >
           Tabs
         </a>
+      {:else}
+        <span
+          aria-label="No tabs link"
+          class="h-10 px-4 flex items-center opacity-50 text-white/60 border border-dashed border-zinc-500 rounded-xl cursor-not-allowed"
+        >
+          Tabs
+        </span>
       {/if}
 
       {#if isArchived}
@@ -142,6 +166,22 @@
           Delete
         </button>
       {:else}
+        {#if song.played_locked}
+          <button
+            onclick={() => onallowNextPlay(song)}
+            title="Unlock this song so the group can record its next play"
+            class="h-10 px-4 bg-zinc-700 border border-transparent hover:border-white duration-100 rounded-xl"
+          >
+            Unlock
+          </button>
+        {:else}
+          <button
+            onclick={() => onplayed(song)}
+            class="h-10 px-4 bg-blue-700 border border-transparent hover:border-white duration-100 rounded-xl"
+          >
+            Played
+          </button>
+        {/if}
         <button
           onclick={startEdit}
           class="h-10 px-4 border border-zinc-600 hover:text-yellow-500 hover:border-yellow-500 duration-100 rounded-xl"

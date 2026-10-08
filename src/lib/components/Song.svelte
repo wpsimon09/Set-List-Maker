@@ -143,6 +143,13 @@
         >
           Tabs
         </a>
+      {:else}
+        <span
+          aria-label="No tabs link"
+          class="h-10 px-4 flex items-center opacity-50 text-white/60 border border-dashed border-zinc-500 rounded-xl cursor-not-allowed"
+        >
+          Tabs
+        </span>
       {/if}
 
       {#if isArchived}
@@ -165,7 +172,7 @@
             title="Unlock this song so the group can record its next play"
             class="h-10 px-4 bg-zinc-700 border border-transparent hover:border-white duration-100 rounded-xl"
           >
-            Allow next play
+            Unlock
           </button>
         {:else}
           <button

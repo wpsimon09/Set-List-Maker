@@ -11,6 +11,7 @@
     archived_at: string | null;
     last_played: string | null;
     times_played: number;
+    played_locked: boolean;
   };
 
   let {
@@ -20,6 +21,7 @@
     onrestore = () => {},
     ondelete = () => {},
     onplayed = () => {},
+    onallowNextPlay = () => {},
   }: {
     song: SongRow;
     onsave?: (song: SongRow) => void;
@@ -27,6 +29,7 @@
     onrestore?: (song: SongRow) => void;
     ondelete?: (song: SongRow) => void;
     onplayed?: (song: SongRow) => void;
+    onallowNextPlay?: (song: SongRow) => void;
   } = $props();
 
   let isArchived = $derived(song.archived_at !== null);
@@ -156,12 +159,22 @@
           Delete
         </button>
       {:else}
-        <button
-          onclick={() => onplayed(song)}
-          class="h-10 px-4 bg-blue-700 border border-transparent hover:border-white duration-100 rounded-xl"
-        >
-          Played
-        </button>
+        {#if song.played_locked}
+          <button
+            onclick={() => onallowNextPlay(song)}
+            title="Unlock this song so the group can record its next play"
+            class="h-10 px-4 bg-zinc-700 border border-transparent hover:border-white duration-100 rounded-xl"
+          >
+            Allow next play
+          </button>
+        {:else}
+          <button
+            onclick={() => onplayed(song)}
+            class="h-10 px-4 bg-blue-700 border border-transparent hover:border-white duration-100 rounded-xl"
+          >
+            Played
+          </button>
+        {/if}
         <button
           onclick={startEdit}
           class="h-10 px-4 border border-zinc-600 hover:text-yellow-500 hover:border-yellow-500 duration-100 rounded-xl"

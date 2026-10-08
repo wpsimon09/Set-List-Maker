@@ -8,6 +8,7 @@
     archived_at: string | null;
     last_played: string | null;
     times_played: number;
+    played_locked: boolean;
   };
 
   let {

@@ -14,6 +14,7 @@
     archived_at: string | null;
     last_played: string | null;
     times_played: number;
+    played_locked: boolean;
   };
 
   let showHistory = $state(false);
@@ -100,7 +101,21 @@
 
   async function markPlayed(song: SongRow) {
     const res = await fetch(`/api/songs/${song.id}/played`, { method: "POST" });
+    if (res.status === 409) {
+      const current: SongRow = await res.json();
+      songs = songs.map((s) => (s.id === current.id ? current : s));
+      return alert("This song was already marked as played.");
+    }
     if (!res.ok) return alert("Couldn't mark the song as played. Try again.");
+    const saved: SongRow = await res.json();
+    songs = songs.map((s) => (s.id === saved.id ? saved : s));
+  }
+
+  async function allowNextPlay(song: SongRow) {
+    const res = await fetch(`/api/songs/${song.id}/played/reset`, {
+      method: "POST",
+    });
+    if (!res.ok) return alert("Couldn't allow the next play. Try again.");
     const saved: SongRow = await res.json();
     songs = songs.map((s) => (s.id === saved.id ? saved : s));
   }
@@ -162,6 +177,7 @@
           onsave={updateSong}
           onarchive={archiveSong}
           onplayed={markPlayed}
+          onallowNextPlay={allowNextPlay}
         />
       {:else}
         <p class="text-white/50 text-center py-8">

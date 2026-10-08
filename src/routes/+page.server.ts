@@ -14,6 +14,7 @@ export const load: PageServerLoad = async () => {
       archived_at: r.archived_at ? r.archived_at.toISOString() : null,
       last_played: r.last_played ? r.last_played.toISOString() : null,
       times_played: r.times_played,
+      played_locked: r.played_locked,
     })),
   };
 };

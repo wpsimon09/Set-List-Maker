@@ -8,17 +8,10 @@ export const POST: RequestHandler = async ({ params }) => {
 
   const [song] = await db()`
     UPDATE songs
-    SET last_played = NOW(),
-        times_played = times_played + 1,
-        played_locked = TRUE
-    WHERE id = ${id} AND played_locked = FALSE
+    SET played_locked = FALSE
+    WHERE id = ${id}
     RETURNING *`;
 
-  if (!song) {
-    const [existing] = await db()`SELECT * FROM songs WHERE id = ${id}`;
-    if (!existing) error(404, "Song not found");
-    return json(existing, { status: 409 });
-  }
-
+  if (!song) error(404, "Song not found");
   return json(song);
 };

@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { cubicOut } from "svelte/easing";
+  import { fade, scale } from "svelte/transition";
+
   type SongRow = {
     id: number;
     name: string;
@@ -62,6 +65,7 @@
 </script>
 
 <article
+  transition:scale={{ duration: 200, start: 0.95, easing: cubicOut }}
   class="w-full rounded-xl bg-zinc-800 text-white p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center gap-3"
   class:opacity-70={isArchived}
 >
@@ -118,7 +122,7 @@
           href={song.tabs_link}
           target="_blank"
           rel="noopener noreferrer"
-          class="h-10 px-4 flex items-center border border-zinc-600 hover:border-white duration-100 rounded-xl"
+          class="h-10 px-4 flex items-center border border-zinc-600 hover:border-blue-400 hover:text-blue-400 duration-100 rounded-xl"
         >
           Tabs
         </a>
@@ -140,7 +144,7 @@
       {:else}
         <button
           onclick={startEdit}
-          class="h-10 px-4 border border-zinc-600 hover:border-white duration-100 rounded-xl"
+          class="h-10 px-4 border border-zinc-600 hover:text-yellow-500 hover:border-yellow-500 duration-100 rounded-xl"
         >
           Edit
         </button>

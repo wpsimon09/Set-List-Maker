@@ -1,13 +1,20 @@
 <script>
   import add_icon from "#lib/assets/plus-circle-solid.svg";
 
-  let { showHistory = $bindable(false), onAdd } = $props();
+  let {
+    showHistory = $bindable(false),
+    onAdd,
+    searchTerm = $bindable(true),
+  } = $props();
 </script>
 
 <header class="z-10 w-full md:w-3/4 lg:w-1/2 mx-auto rounded-lg p-3 sm:p-4">
   <div class="text-white flex flex-col min-w-0">
     <p class="opacity-50 text-sm sm:text-base">Search</p>
-    <input class="w-full h-10 bg-transparent text-white rounded-xl" />
+    <input
+      class="w-full h-10 bg-transparent text-white rounded-xl"
+      bind:value={searchTerm}
+    />
   </div>
 
   <div class="w-full mt-2 flex items-center justify-between gap-2">

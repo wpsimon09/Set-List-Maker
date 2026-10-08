@@ -16,98 +16,45 @@
 
   let showHistory = $state(false);
   let addOpened = $state(false);
+  let searchTerm = $state("");
 
-  const tabs = (query: string) =>
-    `https://www.ultimate-guitar.com/search.php?search_type=title&value=${encodeURIComponent(query)}`;
+  let { data } = $props();
+  let songs = $state<SongRow[]>(data.songs);
 
-  // Fake data shaped like the `songs` table
-  let songs = $state<SongRow[]>([
-    {
-      id: 1,
-      name: "Seven Nation Army",
-      artist: "The White Stripes",
-      tabs_link: tabs("Seven Nation Army"),
-      created_at: "2026-09-01T18:00:00Z",
-      archived_at: null,
-    },
-    {
-      id: 2,
-      name: "Smells Like Teen Spirit",
-      artist: "Nirvana",
-      tabs_link: tabs("Smells Like Teen Spirit"),
-      created_at: "2026-09-01T18:05:00Z",
-      archived_at: null,
-    },
-    {
-      id: 3,
-      name: "Back in Black",
-      artist: "AC/DC",
-      tabs_link: tabs("Back in Black"),
-      created_at: "2026-09-02T19:30:00Z",
-      archived_at: null,
-    },
-    {
-      id: 4,
-      name: "Mr. Brightside",
-      artist: "The Killers",
-      tabs_link: tabs("Mr Brightside"),
-      created_at: "2026-09-05T20:10:00Z",
-      archived_at: null,
-    },
-    {
-      id: 5,
-      name: "Song 2",
-      artist: "Blur",
-      tabs_link: null,
-      created_at: "2026-09-10T17:45:00Z",
-      archived_at: null,
-    },
-    {
-      id: 6,
-      name: "Purple Haze",
-      artist: "Jimi Hendrix",
-      tabs_link: tabs("Purple Haze"),
-      created_at: "2026-09-12T21:00:00Z",
-      archived_at: null,
-    },
-    // Songs that are no longer on the set list
-    {
-      id: 7,
-      name: "Wonderwall",
-      artist: "Oasis",
-      tabs_link: tabs("Wonderwall"),
-      created_at: "2026-08-10T18:00:00Z",
-      archived_at: "2026-09-08T22:15:00Z",
-    },
-    {
-      id: 8,
-      name: "Sweet Child O' Mine",
-      artist: "Guns N' Roses",
-      tabs_link: tabs("Sweet Child O Mine"),
-      created_at: "2026-08-12T19:00:00Z",
-      archived_at: "2026-09-20T20:30:00Z",
-    },
-    {
-      id: 9,
-      name: "Highway to Hell",
-      artist: "AC/DC",
-      tabs_link: null,
-      created_at: "2026-08-15T18:30:00Z",
-      archived_at: "2026-08-30T21:00:00Z",
-    },
-  ]);
+  function matchesSearch(song: SongRow) {
+    const query = searchTerm.trim().toLowerCase();
+    return (
+      !query ||
+      song.name.toLowerCase().includes(query) ||
+      song.artist.toLowerCase().includes(query)
+    );
+  }
 
-  let setList = $derived(songs.filter((s) => s.archived_at === null));
+  let setList = $derived(
+    songs.filter((s) => s.archived_at === null && matchesSearch(s)),
+  );
 
   let pastSongs = $derived(
     songs
-      .filter((s) => s.archived_at !== null)
+      .filter((s) => s.archived_at !== null && matchesSearch(s))
       .sort((a, b) => b.archived_at!.localeCompare(a.archived_at!)),
   );
 
-  // Replace these with calls to your backend later
-  function updateSong(updated: SongRow) {
-    songs = songs.map((s) => (s.id === updated.id ? updated : s));
+  async function updateSong(updated: SongRow) {
+    const res = await fetch(`/api/songs/${updated.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updated),
+    });
+    if (!res.ok) return alert("Couldn't save the song. Try again.");
+    const saved: SongRow = await res.json();
+    songs = songs.map((s) => (s.id === saved.id ? saved : s));
+  }
+
+  async function deleteSong(song: SongRow) {
+    const res = await fetch(`/api/songs/${song.id}`, { method: "DELETE" });
+    if (!res.ok) return alert("Couldn't delete the song. Try again.");
+    songs = songs.filter((s) => s.id !== song.id);
   }
 
   function archiveSong(song: SongRow) {
@@ -116,10 +63,6 @@
 
   function restoreSong(song: SongRow) {
     updateSong({ ...song, archived_at: null });
-  }
-
-  function deleteSong(song: SongRow) {
-    songs = songs.filter((s) => s.id !== song.id);
   }
 
   function openAdd() {
@@ -147,7 +90,7 @@
     class="w-full sticky top-0 z-20 items-center flex flex-col p-1 bg-zinc-900 border border-white/20 rounded-b-lg shadow-2xl"
   >
     <h1 class="text-3xl text-white opacity-50 mt-4">Set List</h1>
-    <Header bind:showHistory onAdd={openAdd}></Header>
+    <Header bind:showHistory onAdd={openAdd} bind:searchTerm></Header>
   </div>
 
   <section class="w-full md:w-3/4 lg:w-1/2 flex flex-col gap-2 p-3 sm:p-4">

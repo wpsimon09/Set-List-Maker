@@ -10,4 +10,5 @@ it again.
 
 ## AI disclaimer
 
-- most of the app is vibe coded, it is supposed to be used by 4 people and noone else
+- most of the app is vibe coded, it is supposed to be used be used by 4 people in the band
+- the code is horrible 

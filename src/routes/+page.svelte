@@ -5,6 +5,7 @@
   import Song from "#lib/components/Song.svelte";
   import AddSongForm from "#lib/components/AddSong.svelte";
   import pentagram from "#lib/assets/pentagram.svg";
+  import cross from "#lib/assets/cross.svg";
   type SongRow = {
     id: number;
     name: string;
@@ -168,11 +169,23 @@
 />
 
 <main class="w-full min-h-screen flex flex-col items-center bg-zinc-900">
-  <h1
-    class="font-bloodclaw text-6xl md:text-6xl lg:text-9xl text-white opacity-50 mt-2 lg:mt-4"
-  >
-    Set List
-  </h1>
+  <div class="w-full flex flex-row items-center h-full justify-center">
+    <img
+      alt="cross"
+      src={cross}
+      class="w-40 z-99 h-20 opacity-40 rotate-180 mt-4"
+    />
+    <h1
+      class="font-bloodra tracking-wider text-6xl md:text-6xl lg:text-9xl text-white opacity-50 mt-2 lg:mt-4"
+    >
+      Set List
+    </h1>
+    <img
+      alt="cross"
+      src={cross}
+      class="w-40 z-99 h-20 opacity-40 rotate-180 mt-4"
+    />
+  </div>
   <div
     class="w-full sticky top-0 z-20 items-center flex flex-col p-1 bg-zinc-900 border-b border-white/20 rounded-b-lg shadow-2xl"
   >

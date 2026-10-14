@@ -9,6 +9,15 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Bloodra";
+  src: url("/fonts/Bloodra.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   --font-bloodclaw: "Bloodclaw", sans-serif;
+  --font-bloodra: "Bloodra", sans-serif;
 }

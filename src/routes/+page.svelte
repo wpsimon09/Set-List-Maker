@@ -173,17 +173,17 @@
     <img
       alt="cross"
       src={cross}
-      class="w-40 z-99 h-20 opacity-40 rotate-180 mt-4"
+      class="lg:w-20 lg:z-99 w-15 h-15 opacity-40 rotate-180 mt-4"
     />
     <h1
-      class="font-bloodra tracking-wider text-6xl md:text-6xl lg:text-9xl text-white opacity-50 mt-2 lg:mt-4"
+      class="font-bloodra tracking-wider text-6xl md:text-6xl mx-4 lg:text-9xl text-white opacity-50 mt-2 lg:mt-4"
     >
       Set List
     </h1>
     <img
       alt="cross"
       src={cross}
-      class="w-40 z-99 h-20 opacity-40 rotate-180 mt-4"
+      class="lg:w-20 lg:z-99 w-15 h-15 opacity-40 rotate-180 mt-4"
     />
   </div>
   <div

@@ -29,6 +29,7 @@
 		"#lib/*": "./src/lib/*"
 	},
 	"dependencies": {
-		"postgres": "^3.4.9"
+		"postgres": "^3.4.9",
+		"svelte-dnd-action": "^0.9.50"
 	}
 }

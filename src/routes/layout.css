@@ -21,3 +21,29 @@
   --font-bloodclaw: "Bloodclaw", sans-serif;
   --font-bloodra: "Bloodra", sans-serif;
 }
+
+/* Set list tile <-> overview dialog morph (View Transitions API). */
+::view-transition-group(.setlist) {
+  animation-duration: 350ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+::view-transition-old(.setlist),
+::view-transition-new(.setlist) {
+  height: 100%;
+  object-fit: cover;
+  overflow: clip;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 250ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

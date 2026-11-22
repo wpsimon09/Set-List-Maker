@@ -79,7 +79,7 @@
 
   {#if filtersOpened}
     <div
-      transition:fly={{ duration: 200, start: 0.95, easing: cubicOut }}
+      transition:fly={{ duration: 200, easing: cubicOut }}
       id="song-filters"
       class="mt-3 p-3 flex flex-col gap-3 text-white border border-zinc-700 rounded-xl bg-zinc-800"
     >
@@ -169,14 +169,22 @@
     </div>
   {/if}
 
-  <div class="w-full mt-2 flex items-center justify-between gap-2">
-    <button
-      onclick={onAdd}
-      class="h-10 shrink-0 flex gap-1 px-3 sm:w-20 justify-center items-center text-white bg-green-700 border border-transparent hover:border-white hover:bg-zinc-800 duration-100 rounded-xl"
-    >
-      <img alt="add-icon" class="scale-70" src={add_icon} />
-      <span>Add</span>
-    </button>
+  <div class="w-full mt-2 flex flex-wrap items-center justify-between gap-2">
+    <div class="flex items-center gap-2">
+      <button
+        onclick={onAdd}
+        class="h-10 shrink-0 flex gap-1 px-3 sm:w-20 justify-center items-center text-white bg-green-700 border border-transparent hover:border-white hover:bg-zinc-800 duration-100 rounded-xl"
+      >
+        <img alt="add-icon" class="scale-70" src={add_icon} />
+        <span>Add</span>
+      </button>
+      <a
+        href="/setlists"
+        class="h-10 shrink-0 px-3 flex items-center text-white border border-zinc-600 hover:border-white duration-100 rounded-xl"
+      >
+        Set lists
+      </a>
+    </div>
 
     <label
       class="flex items-center gap-2 text-white text-sm cursor-pointer select-none"

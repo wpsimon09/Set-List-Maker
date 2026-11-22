@@ -1,15 +1,5 @@
 <script lang="ts">
-  type SongRow = {
-    id: number;
-    name: string;
-    artist: string;
-    tabs_link: string | null;
-    created_at: string;
-    archived_at: string | null;
-    last_played: string | null;
-    times_played: number;
-    played_locked: boolean;
-  };
+  import type { SongRow } from "#lib/types.ts";
 
   let {
     onadd = () => {},

@@ -20,6 +20,19 @@
   let pickerOpened = $state(false);
   let searchTerm = $state("");
   let dialog = $state<HTMLDivElement>();
+  // Song whose actions menu is open (mobile only), or null.
+  let openMenuId = $state<number | null>(null);
+
+  function toggleMenu(song: SongRow) {
+    openMenuId = openMenuId === song.id ? null : song.id;
+  }
+
+  /** True when `next` holds exactly the songs of `prev`, each once. */
+  function isSameSongs(prev: SongRow[], next: SongRow[]) {
+    if (prev.length !== next.length) return false;
+    const ids = new Set(next.map((s) => s.id));
+    return ids.size === next.length && prev.every((s) => ids.has(s.id));
+  }
 
   let inList = $derived(new Set(items.map((s) => s.id)));
 
@@ -55,11 +68,21 @@
   }
 
   function handleConsider(e: CustomEvent<DndEvent<SongRow>>) {
+    openMenuId = null;
     items = e.detail.items;
   }
 
   async function handleFinalize(e: CustomEvent<DndEvent<SongRow>>) {
-    items = e.detail.items;
+    const next = e.detail.items;
+    // Only save a real reordering of this set list's songs. Anything else
+    // (lost, duplicated or foreign items) is discarded and the list reloads.
+    if (!isSameSongs(data.setList.songs, next)) {
+      items = data.setList.songs;
+      return invalidateAll();
+    }
+    items = next;
+    const unchanged = next.every((s, i) => s.id === data.setList.songs[i].id);
+    if (unchanged) return;
     const res = await fetch(`/api/setlists/${data.setList.id}/songs`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -118,7 +141,17 @@
 
 <svelte:window
   onkeydown={(e) => {
-    if (e.key === "Escape") close();
+    if (e.key !== "Escape") return;
+    if (openMenuId !== null) openMenuId = null;
+    else close();
+  }}
+  onclick={(e) => {
+    if (
+      openMenuId !== null &&
+      !(e.target as Element).closest?.("[data-song-menu]")
+    ) {
+      openMenuId = null;
+    }
   }}
 />
 
@@ -185,7 +218,13 @@
     {/if}
 
     <ol
-      use:dragHandleZone={{ items, flipDurationMs, dropTargetStyle: {} }}
+      use:dragHandleZone={{
+        items,
+        flipDurationMs,
+        dropTargetStyle: {},
+        // Unique type: only this list's songs can be dropped into it.
+        type: `setlist-${data.setList.id}`,
+      }}
       onconsider={handleConsider}
       onfinalize={handleFinalize}
       class="flex flex-col gap-2"
@@ -193,36 +232,112 @@
       {#each items as song, i (song.id)}
         <li
           animate:flip={{ duration: flipDurationMs }}
-          class="rounded-xl bg-zinc-900 p-3 flex flex-wrap items-center gap-3"
+          class="relative rounded-xl bg-zinc-900 p-2 sm:p-3 flex items-center gap-2 sm:gap-3 sm:flex-wrap"
+          class:z-10={openMenuId === song.id}
           class:opacity-70={song.archived_at !== null}
         >
           <div
             use:dragHandle
             aria-label="Drag to reorder {song.name}"
-            class="h-10 w-8 shrink-0 flex items-center justify-center text-xl text-white/50 hover:text-white cursor-grab touch-none select-none"
+            class="h-10 w-6 sm:w-8 shrink-0 flex items-center justify-center text-lg sm:text-xl text-white/50 hover:text-white cursor-grab touch-none select-none"
           >
             ⠿
           </div>
 
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-1">
-              <span class="text-white/40 text-sm w-6 shrink-0">{i + 1}.</span>
-              <img alt="" src={pentagram} class="w-5 h-5" />
-              <p class="font-semibold truncate">{song.name}</p>
+              <span class="text-white/40 text-xs sm:text-sm w-5 sm:w-6 shrink-0"
+                >{i + 1}.</span
+              >
+              <img alt="" src={pentagram} class="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+              <p class="text-sm sm:text-base font-semibold truncate">
+                {song.name}
+              </p>
               {#if song.archived_at !== null}
                 <span
-                  class="ml-1 shrink-0 px-2 py-0.5 text-xs rounded-full border border-white/30 text-white/70"
+                  class="ml-1 shrink-0 px-1.5 sm:px-2 py-0.5 text-[0.65rem] sm:text-xs rounded-full border border-white/30 text-white/70"
                 >
                   Archived
                 </span>
               {/if}
             </div>
-            <p class="text-sm opacity-60 truncate">
+            <p class="text-xs sm:text-sm opacity-60 truncate">
               {song.artist} · {playLabel(song)}
             </p>
           </div>
 
-          <div class="flex flex-wrap items-center gap-2 shrink-0">
+          <!-- Mobile: actions live in a dropdown so the title gets the room. -->
+          <div data-song-menu class="relative shrink-0 sm:hidden">
+            <button
+              type="button"
+              onclick={() => toggleMenu(song)}
+              aria-label="Actions for {song.name}"
+              aria-haspopup="menu"
+              aria-expanded={openMenuId === song.id}
+              class="h-10 w-10 flex items-center justify-center text-xl border border-zinc-600 hover:border-white duration-100 rounded-xl"
+            >
+              ⋯
+            </button>
+            {#if openMenuId === song.id}
+              <div
+                role="menu"
+                class="absolute right-0 top-full mt-1 w-40 flex flex-col p-1 rounded-xl bg-zinc-700 border border-white/10 shadow-xl text-sm"
+              >
+                {#if song.tabs_link}
+                  <a
+                    role="menuitem"
+                    href={song.tabs_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onclick={() => (openMenuId = null)}
+                    class="px-3 py-2 rounded-lg hover:bg-zinc-600 text-blue-300"
+                  >
+                    Tabs
+                  </a>
+                {/if}
+                {#if song.archived_at === null}
+                  {#if song.played_locked}
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onclick={() => {
+                        openMenuId = null;
+                        allowNextPlay(song);
+                      }}
+                      class="px-3 py-2 text-left rounded-lg hover:bg-zinc-600"
+                    >
+                      Unlock
+                    </button>
+                  {:else}
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onclick={() => {
+                        openMenuId = null;
+                        markPlayed(song);
+                      }}
+                      class="px-3 py-2 text-left rounded-lg hover:bg-zinc-600"
+                    >
+                      Played
+                    </button>
+                  {/if}
+                {/if}
+                <button
+                  type="button"
+                  role="menuitem"
+                  onclick={() => {
+                    openMenuId = null;
+                    removeSong(song);
+                  }}
+                  class="px-3 py-2 text-left rounded-lg hover:bg-zinc-600 text-red-400"
+                >
+                  Remove
+                </button>
+              </div>
+            {/if}
+          </div>
+
+          <div class="hidden sm:flex flex-wrap items-center gap-2 shrink-0">
             {#if song.tabs_link}
               <a
                 href={song.tabs_link}

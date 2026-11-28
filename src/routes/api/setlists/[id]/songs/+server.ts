@@ -44,6 +44,19 @@ export const PUT: RequestHandler = async ({ params, request }) => {
   const [setList] = await db()`SELECT id FROM set_lists WHERE id = ${id}`;
   if (!setList) error(404, "Set list not found");
 
+  // The new order must contain every song of this set list exactly once,
+  // so positions stay 1..n with no gaps or duplicates.
+  const unique = new Set(songIds);
+  if (unique.size !== songIds.length) error(400, "song_ids has duplicates");
+  const current = await db()`
+    SELECT song_id FROM set_list_songs WHERE set_list_id = ${id}`;
+  if (
+    current.length !== songIds.length ||
+    !current.every((r) => unique.has(r.song_id))
+  ) {
+    error(409, "song_ids must list every song in this set list exactly once");
+  }
+
   if (songIds.length > 0) {
     await db()`
       UPDATE set_list_songs sls
